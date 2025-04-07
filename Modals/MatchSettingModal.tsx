@@ -11,14 +11,14 @@ export default function MatchSettingsModal({ visible, onClose, onConfirm }: Prop
   const [players, setPlayers] = useState(11);
   const [oversIndex, setOversIndex] = useState(0);
 
-  const oversOptions = [4, 5, 6, 7, 8, 9, 10, 20, 50];
+  const oversOptions = [1, 4, 5, 6, 7, 8, 9, 10, 20, 50];
 
   const incrementPlayers = () => {
     if (players < 11) setPlayers(p => p + 1);
   };
 
   const decrementPlayers = () => {
-    if (players > 5) setPlayers(p => p - 1);
+    if (players > 3) setPlayers(p => p - 1);
   };
 
   const nextOverOption = () => {

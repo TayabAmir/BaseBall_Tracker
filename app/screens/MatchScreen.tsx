@@ -1,10 +1,10 @@
-import { View, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, TextInput, Image } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 
 
 export default function MatchScreen() {
-  const { teamA, teamB, playersA, playersB, overs, noOfPlayers } = useLocalSearchParams();
+  const { teamA, teamB, teamALogo, teamBLogo, playersA, playersB, overs, noOfPlayers } = useLocalSearchParams();
 
   const teamAStr = String(teamA)
   const teamBStr = String(teamB)
@@ -23,11 +23,6 @@ export default function MatchScreen() {
   const [isSecondInnings, setIsSecondInnings] = useState(false);
   const [currentTeam, setCurrentTeam] = useState<string>('');
   const [battingFirst, setBattingFirst] = useState<string>('');
-
-  useEffect(() => {
-    console.log("Current Team changed:", currentTeam);
-  }, [currentTeam]);
-
 
   // const parsedPlayersA = JSON.parse(playersA as string);
   // const parsedPlayersB = JSON.parse(playersB as string);
@@ -54,11 +49,9 @@ export default function MatchScreen() {
     } else if (selectedBall.startsWith('Wd')) {
       const extra = parseInt(selectedBall[0]) || 1;
       runs += extra;
-      // no ball counted
     } else if (selectedBall.includes('+Wd')) {
       const extra = parseInt(selectedBall[0]) + 1;
       runs += extra;
-      // no ball counted
     } else if (selectedBall.includes('NB')) {
       const extra = parseInt(selectedBall) || 1;
       runs += extra;
@@ -71,7 +64,6 @@ export default function MatchScreen() {
       runs += lb;
       balls += 1;
     } else {
-      // Regular run
       const run = parseInt(selectedBall);
       if (!isNaN(run)) {
         runs += run;
@@ -79,7 +71,6 @@ export default function MatchScreen() {
       }
     }
 
-    // Update team stats based on the current team
     if (currentTeam === teamAStr) {
       setTeamAStats({ runs, wickets, balls });
     } else {
@@ -87,8 +78,7 @@ export default function MatchScreen() {
     }
 
 
-    // Check if innings should end
-    const maxBalls = Number(overs) * 6; // Max balls for the innings
+    const maxBalls = Number(overs) * 6;
     const totalWickets = Number(noOfPlayers) - 1;
 
     if (isSecondInnings) {
@@ -199,35 +189,53 @@ export default function MatchScreen() {
     const teamAOverText = `(${formatOvers(first.balls)})`;
 
     const teamBStatsText = isFirstInnings ? 'Yet to Bat' : `${second.runs}/${second.wickets}`;
-    const teamBOverText = isFirstInnings ? '' : `(${formatOvers(second.balls)}/${formatOvers(first.balls)})`;
+    const teamBOverText = isFirstInnings ? '' : `(${formatOvers(second.balls)}/${overs})`;
 
     const target = first.runs + 1;
 
     return (
       <View className="bg-white p-4 rounded-xl my-4 shadow-md">
         <View className="flex-row justify-between items-center">
-          {/* First Team */}
-          <View className="flex-1 items-center">
-            {/* <Image source={first.flag} className="w-10 h-6 mb-1" resizeMode="contain" /> */}
-            <Text className="text-lg font-bold">{battingFirst}</Text>
-            <Text className="text-xl font-semibold">{teamAStatsText}</Text>
-            <Text className="text-sm text-gray-500">{teamAOverText}</Text>
-          </View>
 
-          {/* Spacer */}
+          {/* First Team */}
+          <View className='flex pl-40 flex-row justify-start items-center gap-x-4'>
+            <View className="flex pl-40 flex-col w-fit">
+              {teamALogo && (
+                <Image
+                  source={{ uri: typeof teamALogo === 'string' ? teamALogo : teamALogo[0] }}
+                  className="w-20 h-20 mb-1 rounded-full"
+                  resizeMode="cover"
+                />
+              )}
+              <Text className="text-lg font-bold w-fit">{battingFirst}</Text>
+            </View>
+            <View className='flex flex-col w-fit'>
+              <Text className="text-xl font-semibold">{teamAStatsText}</Text>
+              <Text className="text-sm text-gray-500">{teamAOverText}</Text>
+            </View>
+          </View>
           <View className="w-6" />
 
-          {/* Second Team */}
-          <View className="flex-1 items-center">
-            {/* <Image source={second.flag} className="w-10 h-6 mb-1" resizeMode="contain" /> */}
-            <Text className="text-lg font-bold">{secondTeamName}</Text>
-            <Text className="text-xl font-semibold">{teamBStatsText}</Text>
-            {!isFirstInnings && (
+          <View className='flex pl-40 flex-row justify-start items-center gap-x-4 pr-40'>
+            <View className="flex pl-40 flex-col w-fit">
+              {teamBLogo && (
+                <Image
+                  source={{ uri: typeof teamBLogo === 'string' ? teamBLogo : teamBLogo[0] }}
+                  className="w-20 h-20 mb-1 rounded-full"
+                  resizeMode="cover"
+                />
+              )}
+              <Text className="text-lg font-bold w-fit">{secondTeamName}</Text>
+            </View>
+            <View className='flex flex-col w-fit'>
+              <Text className="text-xl font-semibold">{teamBStatsText}</Text>
+              {!isFirstInnings && (
               <>
                 <Text className="text-sm text-gray-500">{teamBOverText}</Text>
                 <Text className="text-xs text-gray-500 mt-1">Target {target}</Text>
               </>
             )}
+            </View>
           </View>
         </View>
       </View>
